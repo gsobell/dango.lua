@@ -11,7 +11,7 @@
 ## Motivation
 To make a no-frills Go client that supports [GTP](https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html) engines.
 
-A lighweight cross-platform alternative to [Sabaki](https://github.com/SabakiHQ/Sabaki), specifically for embedded systems that don't have the resources for an Electron-based program.
+A lighweight, cross-platform alternative to [Sabaki](https://github.com/SabakiHQ/Sabaki), specifically for embedded systems that don't have the resources for an Electron-based program.
 
 
 ### Build
