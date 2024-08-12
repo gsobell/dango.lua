@@ -1,66 +1,120 @@
 love = love -- so LSP stops yelling at me
 -- require "gtp"
+require("board")
 
 function love.load()
   love.keyboard.setKeyRepeat(true, 5)
+  love.window.setFullscreen(true) -- missing from Lutro
   BOARD_SCALE = 0.9
-  DEFAULT_SIZE = 19
+  DEFAULT_SIZE = 9
   SIZE = DEFAULT_SIZE
-  BLACK, WHITE = 0, 1
+  BLACK, WHITE = -1, 1
   TO_PLAY = BLACK
-  local success = love.window.setFullscreen(true) -- missing from Lutro
-
+  STONES = {}
   WIDTH, HEIGHT = love.graphics.getDimensions()
-
-  black = love.graphics.newImage("assets/black.png")
-  white = love.graphics.newImage("assets/white.png")
-
-  stones = {}
   draw_tatami()
   draw_board()
-  HINT = { x = TOP_LEFT_BOARD.x + offset, y = TOP_LEFT_BOARD.y + offset }
+  load_stones()
+  CURRENT = { x = 1, y = 1 }
 end
 
 function love.draw()
   love.graphics.setBlendMode("alpha", "premultiplied")
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.draw(BG_CANVAS, 0, 0)
-  mouse_board_hint()
-  love.graphics.setColor(0, 0, 0, 0.1)
+  --   mouse_board_hint() -- turn back on after {1, 1} sorted
 
-  love.graphics.circle("fill", HINT.x, HINT.y, 12)
-  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.push()
+  love.graphics.translate(TOP_LEFT_BOARD.x, TOP_LEFT_BOARD.y) --origin corner of board
+  love.graphics.scale(square)
+  draw_stones()
+  draw_hint()
+  love.graphics.pop()
 end
+
 function love.update() end
 
+-- until i can figure out the wonky image assets:
+function draw_stones()
+  for _, stone in pairs(STONES) do
+    if stone.img == BLACK_STONE then
+      love.graphics.setColor(0, 0, 0)
+    else
+      love.graphics.setColor(1, 1, 1)
+    end
+    --     love.graphics.draw(stone.img, stone.x - 1, stone.y - 1, 1 / square, 1 / square)
+    love.graphics.circle("fill", stone.x - 0.5, stone.y - 0.5, 0.5)
+  end
+end
+
+function draw_hint()
+  if TO_PLAY == BLACK then
+    love.graphics.setColor(0, 0, 0, 0.1)
+  else
+    love.graphics.setColor(0.2, 0.2, 0.2, 0.1)
+  end
+  love.graphics.circle("fill", CURRENT.x - 0.5, CURRENT.y - 0.5, 0.2)
+  love.graphics.setColor(1, 1, 1)
+end
+
 function love.keypressed(key)
-  new = direction(HINT.x, HINT.y, key)
+  local new = direction(CURRENT.x, CURRENT.y, key)
   if on_board(new.x, new.y) then
-    HINT = new
+    CURRENT = new
   end
   if key == "escape" then
     love.event.quit()
+  end
+  if key == "return" or key == "space" then
+    place_stone()
+  end
+end
+
+function love.mousepressed(x, y, button)
+  if button == 1 then
+    place_stone()
   end
 end
 
 function direction(x, y, key)
   if key == "up" then
-    y = y - square
+    y = y - 1
   elseif key == "down" then
-    y = y + square
+    y = y + 1
   elseif key == "left" then
-    x = x - square
+    x = x - 1
   elseif key == "right" then
-    x = x + square
+    x = x + 1
   end
   return { x = x, y = y }
 end
 
+function place_stone()
+  -- receives {1,1} style cordinates
+  if illegal_move() then
+    return
+  end
+  local cord = tostring(CURRENT.x) .. tostring(CURRENT.y)
+  if TO_PLAY == BLACK then
+    new_stone = { img = BLACK_STONE, x = CURRENT.x, y = CURRENT.y }
+  else
+    new_stone = { img = WHITE_STONE, x = CURRENT.x, y = CURRENT.y }
+  end
+  STONES[cord] = new_stone
+  TO_PLAY = -TO_PLAY
+end
+
 function on_board(x, y)
-  return x > TOP_LEFT_BOARD.x and x <= BOTTOM_RIGHT_BOARD.x and y > TOP_LEFT_BOARD.y and y <= BOTTOM_RIGHT_BOARD.y
+  return x > 0 and x <= SIZE and y > 0 and y <= SIZE
+end
+
+function illegal_move()
+  local cord = tostring(CURRENT.x) .. tostring(CURRENT.y)
+  return STONES[cord] ~= nil
 end
 
 -- not on lutro!
+--[[
 function mouse_board_hint()
   love.graphics.setColor(0, 0, 0, 0.1)
   cursor_x, cursor_y = love.mouse.getPosition()
@@ -75,81 +129,13 @@ function mouse_board_hint()
     love.graphics.setColor(1, 1, 1, 1)
   end
 end
+--]]
 
-function draw_tatami()
-  --tatami
-  local tatami = love.graphics.newImage("assets/tatami.png")
-  BG_CANVAS = love.graphics.newCanvas(love.graphics.getWidth(), love.graphics.getHeight())
-  love.graphics.setCanvas(BG_CANVAS)
-  local tileWidth, tileHeight = tatami:getDimensions()
-  local numX = math.ceil(WIDTH / tileWidth)
-  local numY = math.ceil(HEIGHT / tileHeight)
-  for x = 0, numX - 1 do
-    for y = 0, numY - 1 do
-      love.graphics.draw(tatami, x * tileWidth, y * tileHeight)
-    end
-  end
-end
+function load_stones()
+  BLACK_STONE = love.graphics.newImage("assets/black.png")
+  WHITE_STONE = love.graphics.newImage("assets/white.png")
 
-function draw_board()
-  -- board
-  board_bg = love.graphics.newImage("assets/board.png")
-  square_edge = math.min(WIDTH * BOARD_SCALE, HEIGHT * BOARD_SCALE)
-  board = love.graphics.newQuad(0, 0, square_edge, square_edge, board_bg:getDimensions())
-  board_bg:setWrap("repeat", "repeat")
-  local x = (WIDTH - square_edge) / 2
-  local y = (HEIGHT - square_edge) / 2
-  love.graphics.draw(board_bg, board, x, y)
-  love.graphics.setColor(love.math.colorFromBytes(200, 146, 58))
-  love.graphics.setLineWidth(5)
-  love.graphics.rectangle("line", x, y, square_edge, square_edge, 4, 4)
-  -- lines
-  square = square_edge / SIZE
-  offset = square * 0.5
-  TOP_LEFT_BOARD = { x = x, y = y }
-  BOTTOM_RIGHT_BOARD = { x = x + square_edge, y = y + square_edge }
-  love.graphics.translate(x + offset, y + offset)
-  local cellSize = square_edge / SIZE
-  local gridLines = {}
-
-  for x = 1, square_edge, cellSize do
-    local line = { x, 0, x, square_edge - 2 * offset }
-    table.insert(gridLines, line)
-  end
-  for y = 1, square_edge, cellSize do
-    local line = { 0, y, square_edge - 2 * offset, y }
-    table.insert(gridLines, line)
-  end
-  if SIZE > 9 then
-    love.graphics.setLineWidth(1)
-  else
-    love.graphics.setLineWidth(2)
-  end
-
-  love.graphics.setColor(0, 0, 0)
-  for i, line in ipairs(gridLines) do
-    love.graphics.line(line)
-    x = x - 1
-  end
-
-  -- hoshi [star points]
-  center = (SIZE - 1) / 2
-  from_edge = 4
-  if SIZE > 15 and (SIZE % 2 == 1) then
-    hoshi = { from_edge - 1, (SIZE - 1) / 2, SIZE - from_edge }
-  elseif SIZE >= 13 then
-    hoshi = { from_edge - 1, SIZE - from_edge }
-  else
-    from_edge = 3
-    hoshi = { from_edge - 1, SIZE - from_edge }
-  end
-  for _, i in ipairs(hoshi) do
-    for _, j in ipairs(hoshi) do
-      love.graphics.circle("fill", square * i + 1, square * j + 1, 7)
-    end -- +1 is to center on line width
-  end
-  if SIZE % 2 == 1 then
-    love.graphics.circle("fill", square * center + 1, square * center + 1, 7)
-  end
-  love.graphics.setCanvas()
+  --   stone_width, stone_height = BLACK_STONE:getDimensions()
+  --   scale = square / stone_width
+  --   scaled_stone_height = stone_height * scale
 end
