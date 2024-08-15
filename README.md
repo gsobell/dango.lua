@@ -10,9 +10,8 @@
 
 ## Motivation
 To make a no-frills Go client that supports [GTP](https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html) engines.
-Zero
 
-A lighweight, cross-platform alternative to [Sabaki](https://github.com/SabakiHQ/Sabaki), specifically for embedded systems that don't have the resources for an Electron-based program.
+A lightweight, cross-platform alternative to [Sabaki](https://github.com/SabakiHQ/Sabaki), specifically for embedded systems that don't have the resources for an Electron-based program.
 
 
 ### Build
@@ -31,6 +30,14 @@ This will allow `dango` to run on any embedded device that can run Libretto's [L
 
 <!-- On a device with either [Ludo](https://ludo.libretro.com/) or [RetroArch](https://www.retroarch.com/): -->
 
+## Controls
+Navigate with arrow keys or mouse. Click, `enter` or `space` places a stone.
+
+Keyboard shortcuts:
+- `n` : new game
+- `p` : pass
+- `esc` : exit
+
 ## Features
 
 ### Current
@@ -41,11 +48,14 @@ This will allow `dango` to run on any embedded device that can run Libretto's [L
 - Stone removal
 - Ko
 - GTP protocol
-- Zero configuration needed for most GTP engines
+- Zero configuration GTP engines
 - Legal move detection
 - Themes
   - eInk theme
   - Low-res theme
+
+### Supported GTP Engines
+- None
 
 See also:
 

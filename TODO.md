@@ -2,7 +2,6 @@
 
 - Legal move check
 - Stone removal
-- Mouse support
 - Touchscreen support
 - GTP implementation
 - Themes
@@ -11,3 +10,4 @@
   - [ ] Kifu - see sabaki
   - [ ] Other OGS themes
 - Package
+- Smooth hint transition

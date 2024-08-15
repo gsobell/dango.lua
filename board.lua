@@ -39,7 +39,7 @@ function draw_board()
     x = x - 1
   end
 
-  -- hoshi [star points]
+  -- hoshi [star points] MUST be made small when board size scalled down
   center = (SIZE - 1) / 2
   from_edge = 4
   if SIZE > 15 and (SIZE % 2 == 1) then
