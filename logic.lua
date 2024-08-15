@@ -13,37 +13,52 @@ end
 have liberties
 ]]
 
-function capture(coord, color, checked, to_remove)
--- check if liberty / empty
-  local up = coord - 1
-  local down = coord + 1
-  local left = coord + 100
-  local right = coord - 100
+function capture(coord, color_to_check, imaginary)
+  local STONES = STONES
+  STONES[one_one_to_coord(imaginary)] = { color = imaginary.color, x = imaginary.x, y = imaginary.x }
+  print("Check group starting with: " .. coord)
+  to_remove = { coord = coord }
+  checked = {}
+  to_check = {coord}
 
-checked = {coord}
-to_check = { up, down, left, right }
+  while #to_check > 0 do
+    local curr = table.remove(to_check)
+    print("Now checking: " .. curr)
 
-while #to_check > 0 do
+    if coord_on_board(curr) and not STONES[curr] then
+      print("liberty found at: " .. curr)
+      return false
+    end
 
-if coord_on_board(coord) and STONES[coord] == nil then
-	return false
-end
+    if not coord_on_board(curr) then
+      checked[curr] = curr
+      goto continue
+    end
 
--- already checked
-if checked[coord] then
-	return false
-end
+        if checked[curr] then
+          print("already checked" .. curr)
+          goto continue
+        end
 
--- other color
-if STONES[coord] ~= color then
-	return false
-end
+    if STONES[curr].color == -color_to_check then
+      print("other color" .. curr)
+      checked[curr] = curr
+      goto continue
+    end
 
--- table.remove(to_check, coord)
-table.insert(checked, coord)
-table.insert(to_remove, coord)
-
-
-end
-return to_remove
+    if STONES[curr].color == color_to_check then
+      print("Adding " .. curr .. " to remove list")
+      checked[curr] = curr
+      to_remove[curr] = curr
+      local adjacent = { curr - 1, curr + 1, curr + 100, curr - 100 }
+      for _, adj in pairs(adjacent) do
+        if not checked[adj] and coord_on_board(adj) then
+          table.insert(to_check, adj)
+        end
+      end
+    end
+    ::continue::
+  end
+  print("Sending the remove list for removal")
+  return to_remove
 end

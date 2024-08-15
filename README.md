@@ -15,16 +15,17 @@ A lightweight, cross-platform alternative to [Sabaki](https://github.com/SabakiH
 
 
 ### Build
-Very much still a work in progress:
+Still a work in progress, basic game is implemented:
 
 ```sh
 git clone https://github.com/gsobell/dango.lua.git && cd dango.lua
 make
 love dango.love
 ```
+Dependencies: [`LÖVE 2D`](https://www.love2d.org/)
 
 ### Installation
-Care was taken to only used [API](https://github.com/libretro/lutro-status) also implemented by [Lutro](https://lutro.libretro.com/), a subset of [LÖVE 2D](https://www.love2d.org/).
+Care was taken to only use the [API](https://github.com/libretro/lutro-status) also implemented by [Lutro](https://lutro.libretro.com/), a subset of [LÖVE 2D](https://www.love2d.org/).
 This will allow `dango` to run on any embedded device that can run Libretto's [Ludo](https://ludo.libretro.com/) or [RetroArch](https://www.retroarch.com/).
 
 

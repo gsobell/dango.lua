@@ -98,7 +98,12 @@ end
 
 function love.mousepressed(x, y, button)
   if button == 1 then
-    place_stone()
+    cursor_x, cursor_y = love.mouse.getPosition()
+    local x = math.ceil((cursor_x - TOP_LEFT_BOARD.x) / square)
+    local y = math.ceil((cursor_y - TOP_LEFT_BOARD.y) / square)
+    if on_board(x, y) then
+      place_stone()
+    end
   end
 end
 
@@ -115,7 +120,7 @@ function direction(x, y, key)
   return { x = x, y = y }
 end
 
--- can recieve x, y or table with [x] and [y]
+-- can recieve x, y or table that has [x] and [y]
 function one_one_to_coord(curr, y)
   if not y then
     return 100 * curr.x + curr.y
@@ -125,30 +130,35 @@ function one_one_to_coord(curr, y)
   end
 end
 
+function adjacent(coord)
+  local to_return = {}
+  for _, adj in pairs({ coord - 1, coord + 1, coord + 100, coord - 100 }) do
+    if coord_on_board(adj) then
+      table.insert(to_return, adj)
+    end
+  end
+  return to_return
+end
+
 function place_stone()
   local coord = one_one_to_coord(CURRENT)
   if is_spot_filled() then
     return
   end
+  --check capture, carry out capture
+  for _, adj in ipairs(adjacent(coord)) do
+    if STONES[adj] then
+      if STONES[adj].color == -TO_PLAY then
+        to_remove = capture(adj, -TO_PLAY, CURRENT)
+        if to_remove then
+          unplace_stones(to_remove)
+        end
+      end
+    end
+  end
 
-  local up = coord - 1
-  local down = coord + 1
-  local left = coord + 100
-  local right = coord - 100
+  --check self-capture
 
---   for _, dir in ipairs({ up, down, left, right }) do
---     if coord_on_board(dir) and STONES[dir].color == -TO_PLAY then
---       local stones_to_remove = capture(dir, -TO_PLAY, { coord }, {})
---       if stones_to_remove ~= nil then
---         unplace_stones(stones_to_remove)
---         love.audio.play(capture_sound)
---       end
---     end
---   end
-
---   if self_capture() then
---     return
---   end
   local new_stone = {}
   if TO_PLAY == BLACK then
     new_stone = { color = BLACK, img = BLACK_STONE, x = CURRENT.x, y = CURRENT.y }
@@ -162,10 +172,11 @@ function place_stone()
 end
 
 function unplace_stones(to_remove)
+  print(table.concat(to_remove))
+  print("Nothing to remove: " .. #to_remove == 0)
   for k, stone in pairs(to_remove) do
-    table.remove(stone)
-    table.remove(k)
-    --     stone:release()
+    STONES[stone] = nil
+    STONES[k] = nil
   end
 end
 
