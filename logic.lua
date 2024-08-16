@@ -1,64 +1,51 @@
 function is_spot_filled()
-  local coord = one_one_to_coord(CURRENT)
-  if STONES[coord] ~= nil then
-    return true
-  end
+  return STONES[CURRENT.x][CURRENT.y]
 end
 
-function coord_on_board(coord)
-  return (coord >= MIN_COORD) and (coord <= MAX_COORD)
-end
-
---[[ Checks whether groups of color starting with coord
-have liberties
-]]
-
-function capture(coord, color_to_check, imaginary)
+-- capture chain starting with 'start'
+-- placed is added to local STONES
+function capture(start, color, placed)
   local STONES = STONES
-  STONES[one_one_to_coord(imaginary)] = { color = imaginary.color, x = imaginary.x, y = imaginary.x }
-  print("Check group starting with: " .. coord)
-  to_remove = { coord = coord }
-  checked = {}
-  to_check = {coord}
+  STONES[placed.x][placed.y] = placed
+  local to_check = { start }
+  local to_remove = {}
+  local checked = {}
 
   while #to_check > 0 do
     local curr = table.remove(to_check)
-    print("Now checking: " .. curr)
+    local x, y = curr.x, curr.y
+    checked[tostring(x .. "-" .. y)] = curr
 
-    if coord_on_board(curr) and not STONES[curr] then
-      print("liberty found at: " .. curr)
+    if on_board(x, y) and STONES[x][y] == nil then
+      print("Liberty found")
       return false
     end
 
-    if not coord_on_board(curr) then
-      checked[curr] = curr
+    if STONES[x][y].color ~= color then
+      print("other color")
       goto continue
     end
 
-        if checked[curr] then
-          print("already checked" .. curr)
-          goto continue
-        end
-
-    if STONES[curr].color == -color_to_check then
-      print("other color" .. curr)
-      checked[curr] = curr
-      goto continue
-    end
-
-    if STONES[curr].color == color_to_check then
-      print("Adding " .. curr .. " to remove list")
-      checked[curr] = curr
+    if STONES[x][y].color == color then
+      print("Adding " .. x .. "," .. y .. " to remove list")
       to_remove[curr] = curr
-      local adjacent = { curr - 1, curr + 1, curr + 100, curr - 100 }
-      for _, adj in pairs(adjacent) do
-        if not checked[adj] and coord_on_board(adj) then
-          table.insert(to_check, adj)
+      local directions = {
+        { x = 0, y = 1 },
+        { x = 1, y = 0 },
+        { x = 0, y = -1 },
+        { x = -1, y = 0 },
+      }
+      for _, direction in ipairs(directions) do
+        local x = curr.x + direction.x
+        local y = curr.y + direction.y
+        if on_board(x, y) and not checked[tostring(x .. "-" .. y)] then
+          print("Adding" .. x .. "," .. y .. "to check")
+          table.insert(to_check, { x = x, y = y })
         end
       end
     end
     ::continue::
   end
-  print("Sending the remove list for removal")
+  print("Removing stones now")
   return to_remove
 end

@@ -1,8 +1,6 @@
 ## To Do
 
-- Legal move check
-- Stone capture
-- Stone removal
+- Legal placement check
 - Add side legends (1-1 and A-1)
 - Touchscreen support
 - GTP implementation

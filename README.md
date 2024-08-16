@@ -20,7 +20,7 @@ Still a work in progress, basic game is implemented:
 ```sh
 git clone https://github.com/gsobell/dango.lua.git && cd dango.lua
 make
-love dango.love
+love dango.lua
 ```
 Dependencies: [`LÖVE 2D`](https://www.love2d.org/)
 
@@ -42,15 +42,14 @@ Keyboard shortcuts:
 ## Features
 
 ### Current
-- Board
-- Stones
+- Board of any size
+- Stone and group capture
 
 ### Future
-- Stone removal
+- Legal move detection
 - Ko
 - GTP protocol
 - Zero configuration GTP engines
-- Legal move detection
 - Themes
   - eInk theme
   - Low-res theme

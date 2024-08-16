@@ -34,18 +34,26 @@ function load_globals()
   SIZE = DEFAULT_SIZE
   BLACK, WHITE = -1, 1
   TO_PLAY = BLACK
-  STONES = {}
   CURRENT = { x = 1, y = 1 }
   WIDTH, HEIGHT = love.graphics.getDimensions()
-  MIN_COORD = 0101
-  MAX_COORD = SIZE + SIZE * 100
+  STONES = {}
+  for i = 1, SIZE do
+    STONES[i] = {}
+    for j = 1, SIZE do
+      STONES[i][j] = nil -- Fill the values here
+    end
+  end
 end
 
 function draw_stones()
-  for _, stone in pairs(STONES) do
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(stone.img, stone.x - 1, stone.y - 1, 1 / stone_width, 1 / stone_height)
+  for i, row in pairs(STONES) do
+    for j, stone in pairs(row) do
+      if stone then
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(stone.img, stone.x - 1, stone.y - 1, 1 / stone_width, 1 / stone_height)
+      end
+    end
   end
 end
 
@@ -130,58 +138,62 @@ function one_one_to_coord(curr, y)
   end
 end
 
-function adjacent(coord)
-  local to_return = {}
-  for _, adj in pairs({ coord - 1, coord + 1, coord + 100, coord - 100 }) do
-    if coord_on_board(adj) then
-      table.insert(to_return, adj)
-    end
-  end
-  return to_return
+function on_board(x, y)
+  return x > 0 and x <= SIZE and y > 0 and y <= SIZE
 end
 
 function place_stone()
-  local coord = one_one_to_coord(CURRENT)
   if is_spot_filled() then
     return
   end
-  --check capture, carry out capture
-  for _, adj in ipairs(adjacent(coord)) do
-    if STONES[adj] then
-      if STONES[adj].color == -TO_PLAY then
-        to_remove = capture(adj, -TO_PLAY, CURRENT)
-        if to_remove then
-          unplace_stones(to_remove)
-        end
+  -- check capture
+  local directions = {
+    { x = 0, y = 1 },
+    { x = 1, y = 0 },
+    { x = 0, y = -1 },
+    { x = -1, y = 0 },
+  }
+  --[[TODO make placement of a stone illegal that:
+  1. does removes last liberty from group so same color
+  2. does not capture opposite color
+  3. no liberties
+  ]]
+  for _, direction in ipairs(directions) do
+    local x = CURRENT.x + direction.x
+    local y = CURRENT.y + direction.y
+    if on_board(x, y) and STONES[x][y] ~= nil then
+      if STONES[x][y].color ~= TO_PLAY then
+        unplace_stones(capture(STONES[x][y], -TO_PLAY, CURRENT))
+      elseif STONES[x][y].color == TO_PLAY then
+        capture(STONES[x][y], TO_PLAY, CURRENT) -- use this to check for liberty
       end
     end
   end
 
-  --check self-capture
-
-  local new_stone = {}
+  -- check self-capture
   if TO_PLAY == BLACK then
-    new_stone = { color = BLACK, img = BLACK_STONE, x = CURRENT.x, y = CURRENT.y }
+    STONES[CURRENT.x][CURRENT.y] = { color = BLACK, img = BLACK_STONE, x = CURRENT.x, y = CURRENT.y }
   else
-    new_stone = { color = WHITE, img = WHITE_STONE, x = CURRENT.x, y = CURRENT.y }
+    STONES[CURRENT.x][CURRENT.y] = { color = WHITE, img = WHITE_STONE, x = CURRENT.x, y = CURRENT.y }
   end
-  STONES[coord] = new_stone
   local randomIndex = math.random(1, #stone_placement_sound)
   love.audio.play(stone_placement_sound[randomIndex])
   TO_PLAY = -TO_PLAY
 end
 
 function unplace_stones(to_remove)
-  print(table.concat(to_remove))
-  print("Nothing to remove: " .. #to_remove == 0)
-  for k, stone in pairs(to_remove) do
-    STONES[stone] = nil
-    STONES[k] = nil
+  if not to_remove then
+    print("Nothing to remove.")
+    return false
   end
-end
-
-function on_board(x, y)
-  return x > 0 and x <= SIZE and y > 0 and y <= SIZE
+  for k, stone in pairs(to_remove) do
+    local x = stone.x
+    local y = stone.y
+    STONES[x][y] = nil
+  end
+  local randomIndex = math.random(1, #stone_capture_sound)
+  love.audio.play(stone_capture_sound[randomIndex])
+  return true
 end
 
 function mouse_board_hint() -- not on lutro!
@@ -202,6 +214,7 @@ end
 
 function load_sounds()
   stone_placement_sound = {}
+  stone_capture_sound = {}
   local placement_files = {
     "assets/audio/0.mp3",
     "assets/audio/1.mp3",
@@ -219,7 +232,9 @@ function load_sounds()
   for i, file in ipairs(placement_files) do
     stone_placement_sound[i] = love.audio.newSource(file, "static")
   end
+  for i, file in ipairs(capture_files) do
+    stone_capture_sound[i] = love.audio.newSource(file, "static")
+  end
   pass_sound = love.audio.newSource("assets/audio/pass.mp3", "static")
   new_game_sound = love.audio.newSource("assets/audio/newgame.mp3", "static")
-  capture_sound = love.audio.newSource("assets/audio/capture0.mp3", "static")
 end
