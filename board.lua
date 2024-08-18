@@ -1,8 +1,8 @@
 function draw_board()
   -- board
-  board_bg = love.graphics.newImage("assets/board.png")
-  square_edge = math.min(WIDTH * BOARD_SCALE, HEIGHT * BOARD_SCALE)
-  board = love.graphics.newQuad(0, 0, square_edge, square_edge, board_bg:getDimensions())
+  local board_bg = love.graphics.newImage("assets/board.png")
+  local square_edge = math.min(WIDTH * BOARD_SCALE, HEIGHT * BOARD_SCALE)
+  local board = love.graphics.newQuad(0, 0, square_edge, square_edge, board_bg:getDimensions())
   board_bg:setWrap("repeat", "repeat")
   local x = (WIDTH - square_edge) / 2
   local y = (HEIGHT - square_edge) / 2
@@ -12,19 +12,19 @@ function draw_board()
   love.graphics.rectangle("line", x, y, square_edge, square_edge, 4, 4)
   -- lines
   square = square_edge / SIZE
-  offset = square * 0.5
+  local offset = square * 0.5
   TOP_LEFT_BOARD = { x = x, y = y }
   BOTTOM_RIGHT_BOARD = { x = x + square_edge, y = y + square_edge }
   love.graphics.translate(x + offset, y + offset)
   local cellSize = square_edge / SIZE
   local gridLines = {}
 
-  for x = 1, square_edge, cellSize do
-    local line = { x, 0, x, square_edge - 2 * offset }
+  for i = 1, square_edge, cellSize do
+    local line = { i, 0, i, square_edge - 2 * offset }
     table.insert(gridLines, line)
   end
-  for y = 1, square_edge, cellSize do
-    local line = { 0, y, square_edge - 2 * offset, y }
+  for j = 1, square_edge, cellSize do
+    local line = { 0, j, square_edge - 2 * offset, j }
     table.insert(gridLines, line)
   end
   if SIZE > 9 then
@@ -34,14 +34,15 @@ function draw_board()
   end
 
   love.graphics.setColor(0, 0, 0)
-  for i, line in ipairs(gridLines) do
+  for _, line in ipairs(gridLines) do
     love.graphics.line(line)
     x = x - 1
   end
 
   -- hoshi [star points] MUST be made small when board size scalled down
-  center = (SIZE - 1) / 2
-  from_edge = 4
+  local center = (SIZE - 1) / 2
+  local from_edge = 4
+  local hoshi
   if SIZE > 15 and (SIZE % 2 == 1) then
     hoshi = { from_edge - 1, (SIZE - 1) / 2, SIZE - from_edge }
   elseif SIZE >= 13 then

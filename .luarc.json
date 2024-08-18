@@ -1,0 +1,9 @@
+{
+    "diagnostics.globals": [
+        "love"
+    ],
+    "diagnostics.disable": [
+        "undefined-global",
+        "lowercase-global"
+    ]
+}

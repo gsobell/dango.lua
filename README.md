@@ -22,14 +22,18 @@ git clone https://github.com/gsobell/dango.lua.git && cd dango.lua
 make
 love dango.lua
 ```
-Dependencies: [`LÖVE 2D`](https://www.love2d.org/)
+Requires: [`LÖVE 2D`](https://www.love2d.org/)
 
 ### Installation
-Care was taken to only use the [API](https://github.com/libretro/lutro-status) also implemented by [Lutro](https://lutro.libretro.com/), a subset of [LÖVE 2D](https://www.love2d.org/).
-This will allow `dango` to run on any embedded device that can run Libretto's [Ludo](https://ludo.libretro.com/) or [RetroArch](https://www.retroarch.com/).
 
+There are three default profiles for the targeted platforms:
+1. Desktop - cross-platform, mouse and keyboard
+2. Touchscreen - Phones, tablets, and eInk Tablets
+3. Embedded - [RetroArch](https://www.retroarch.com/) or [Ludo](https://ludo.libretro.com/)
 
-<!-- On a device with either [Ludo](https://ludo.libretro.com/) or [RetroArch](https://www.retroarch.com/): -->
+For the third category, care was taken only to use the [API](https://github.com/libretro/lutro-status) implemented by [Lutro](https://lutro.libretro.com/), a subset of [LÖVE 2D](https://www.love2d.org/).
+This will allow `dango` to run on any embedded device that can run Libretto's RetroArch.
+
 
 ## Controls
 Navigate with arrow keys or mouse. Click, `enter` or `space` places a stone.
@@ -44,12 +48,15 @@ Keyboard shortcuts:
 ### Current
 - Board of any size
 - Stone and group capture
+- Legal move detection
 
 ### Future
-- Legal move detection
 - Ko
+- Undo
+- SGF Import/export
 - GTP protocol
 - Zero configuration GTP engines
+- Profile auto-detection
 - Themes
   - eInk theme
   - Low-res theme

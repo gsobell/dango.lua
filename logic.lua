@@ -1,11 +1,10 @@
+-- nil if empty
 function is_spot_filled()
   return STONES[CURRENT.x][CURRENT.y]
 end
 
--- capture chain starting with 'start'
--- placed is added to local STONES
+--TODO remove 'checked' by using 'to_remove' + 'on_board'
 function capture(start, color, placed)
-  local STONES = STONES
   STONES[placed.x][placed.y] = placed
   local to_check = { start }
   local to_remove = {}
@@ -17,17 +16,15 @@ function capture(start, color, placed)
     checked[tostring(x .. "-" .. y)] = curr
 
     if on_board(x, y) and STONES[x][y] == nil then
-      print("Liberty found")
+      STONES[CURRENT.x][CURRENT.y] = nil
       return false
     end
 
     if STONES[x][y].color ~= color then
-      print("other color")
       goto continue
     end
 
     if STONES[x][y].color == color then
-      print("Adding " .. x .. "," .. y .. " to remove list")
       to_remove[curr] = curr
       local directions = {
         { x = 0, y = 1 },
@@ -36,16 +33,15 @@ function capture(start, color, placed)
         { x = -1, y = 0 },
       }
       for _, direction in ipairs(directions) do
-        local x = curr.x + direction.x
-        local y = curr.y + direction.y
+        x = curr.x + direction.x -- fix redefined local by adjacent()
+        y = curr.y + direction.y
         if on_board(x, y) and not checked[tostring(x .. "-" .. y)] then
-          print("Adding" .. x .. "," .. y .. "to check")
           table.insert(to_check, { x = x, y = y })
         end
       end
     end
     ::continue::
   end
-  print("Removing stones now")
+  STONES[CURRENT.x][CURRENT.y] = nil
   return to_remove
 end
