@@ -11,8 +11,11 @@ function draw_board()
   love.graphics.setLineWidth(5)
   love.graphics.rectangle("line", x, y, square_edge, square_edge, 4, 4)
   -- lines
+  square_edge = square_edge * GRID_SCALE
   square = square_edge / SIZE
   local offset = square * 0.5
+  x = (WIDTH - square_edge) / 2
+  y = (HEIGHT - square_edge) / 2
   TOP_LEFT_BOARD = { x = x, y = y }
   BOTTOM_RIGHT_BOARD = { x = x + square_edge, y = y + square_edge }
   love.graphics.translate(x + offset, y + offset)

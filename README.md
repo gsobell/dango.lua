@@ -20,7 +20,7 @@ Still a work in progress, basic game is implemented:
 ```sh
 git clone https://github.com/gsobell/dango.lua.git && cd dango.lua
 make
-love dango.lua
+love ./
 ```
 Requires: [`LÖVE 2D`](https://www.love2d.org/)
 

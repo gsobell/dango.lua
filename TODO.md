@@ -1,4 +1,4 @@
-## To Do
+## General
 - Data structure to hold moves and allow undo
 - Ko, based on data structure
 - Touchscreen support
@@ -6,18 +6,20 @@
 - Command line options and help
 - love 2D and gnugo etc installation helper
 - Add typing by means of metatables
+- Sound for illegal move
 
 ## GTP
 - GTP implementation
 - GnuGO
 
 ## UI
-- Smooth hint transition
+- Hint to show last played
 - Add simple menu
 - Add side legends (1-1 and A-1)
+- Game manager for ongoing games
+- Smooth hint transition
 
 ## SGF
-- Game manager for ongoing games
 - Save games as SGF, use serialize
 - View SGF comments ()
 

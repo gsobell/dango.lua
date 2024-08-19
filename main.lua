@@ -1,5 +1,6 @@
 require("board")
 require("logic")
+require("assets")
 -- require("gtp")
 
 local initial_resize = true
@@ -29,7 +30,8 @@ function love.draw()
 end
 
 function load_globals()
-  BOARD_SCALE = 0.90
+  BOARD_SCALE = 0.9
+  GRID_SCALE = 1
   DEFAULT_SIZE = 9
   SIZE = DEFAULT_SIZE
   BLACK, WHITE = -1, 1
@@ -156,9 +158,9 @@ end
 
 function place_stone()
   if is_spot_filled() then
+    love.audio.play(ILLEGAL_PLACEMENT_SOUND)
     return
   end
-
   local directions = adjacent(CURRENT.x, CURRENT.y)
 
   do
@@ -190,6 +192,7 @@ function place_stone()
         goto placement
       end
     end
+    love.audio.play(ILLEGAL_PLACEMENT_SOUND)
     return
   end
 
@@ -227,37 +230,4 @@ function mouse_board_hint() -- not on lutro!
     CURRENT.x = x
     CURRENT.y = y
   end
-end
-
-function load_stones()
-  BLACK_STONE = love.graphics.newImage("assets/black.png")
-  WHITE_STONE = love.graphics.newImage("assets/white.png")
-  STONE_WIDTH, STONE_HEIGHT = BLACK_STONE:getDimensions()
-end
-
-function load_sounds()
-  STONE_PLACEMENT_SOUND = {}
-  STONE_CAPTURE_SOUND = {}
-  local placement_files = {
-    "assets/audio/0.mp3",
-    "assets/audio/1.mp3",
-    "assets/audio/2.mp3",
-    "assets/audio/3.mp3",
-    "assets/audio/4.mp3",
-  }
-  local capture_files = {
-    "assets/audio/capture0.mp3",
-    "assets/audio/capture1.mp3",
-    "assets/audio/capture2.mp3",
-    "assets/audio/capture3.mp3",
-    "assets/audio/capture4.mp3",
-  }
-  for i, file in ipairs(placement_files) do
-    STONE_PLACEMENT_SOUND[i] = love.audio.newSource(file, "static")
-  end
-  for i, file in ipairs(capture_files) do
-    STONE_CAPTURE_SOUND[i] = love.audio.newSource(file, "static")
-  end
-  PASS_SOUND = love.audio.newSource("assets/audio/pass.mp3", "static")
-  NEW_GAME_SOUND = love.audio.newSource("assets/audio/newgame.mp3", "static")
 end
