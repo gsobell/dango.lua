@@ -1,6 +1,8 @@
+-- refactor this file into smaller functions, calculate local needed in file in main board func
+
 function draw_board()
   -- board
-  local board_bg = love.graphics.newImage("assets/board.png")
+  local board_bg = love.graphics.newImage("assets/wood_grain.png")
   local square_edge = math.min(WIDTH * BOARD_SCALE, HEIGHT * BOARD_SCALE)
   local board = love.graphics.newQuad(0, 0, square_edge, square_edge, board_bg:getDimensions())
   board_bg:setWrap("repeat", "repeat")
@@ -10,7 +12,7 @@ function draw_board()
   love.graphics.setColor(love.math.colorFromBytes(200, 146, 58))
   love.graphics.setLineWidth(5)
   love.graphics.rectangle("line", x, y, square_edge, square_edge, 4, 4)
-  -- lines
+
   square_edge = square_edge * GRID_SCALE
   square = square_edge / SIZE
   local offset = square * 0.5
@@ -21,6 +23,7 @@ function draw_board()
   love.graphics.translate(x + offset, y + offset)
   local cellSize = square_edge / SIZE
   local gridLines = {}
+  -- TODO  use: love.graphics.scale(square) here:
 
   for i = 1, square_edge, cellSize do
     local line = { i, 0, i, square_edge - 2 * offset }
@@ -35,11 +38,22 @@ function draw_board()
   else
     love.graphics.setLineWidth(2)
   end
-
   love.graphics.setColor(0, 0, 0)
   for _, line in ipairs(gridLines) do
     love.graphics.line(line)
-    x = x - 1
+    --     x = x - 1
+  end
+
+  -- coordinates
+  --TODO add A1 style, fix to stone size, so stone doesn't cover
+  if COORDINATES then
+    love.graphics.setFont(love.graphics.newFont(20))
+    for i = 1, SIZE do
+      love.graphics.print(i, i * cellSize - cellSize, -cellSize, 0, 1, 1, love.graphics.getFont():getWidth(i) / 2, 0)
+    end
+    for j = 1, SIZE do
+      love.graphics.print(j, -cellSize, j * cellSize - cellSize, 0, 1, 1, 0, love.graphics.getFont():getWidth(j) / 2)
+    end
   end
 
   -- hoshi [star points] MUST be made small when board size scalled down

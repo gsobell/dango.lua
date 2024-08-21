@@ -1,6 +1,8 @@
 # assets
 
-All images and audio assets from [Sabaki](https://github.com/SabakiHQ/Sabaki) Go board and SGF editor. Used under MIT license, with exception of ["Wood Knock" by Mr. Guff](https://freesound.org/s/369710/), used under License: Creative Commons 0
+- All images and audio assets from [Sabaki](https://github.com/SabakiHQ/Sabaki) Go board and SGF editor, and its board component [Shudan](https://github.com/SabakiHQ/Shudan). Used under MIT license.
+
+- ["Wood Knock"](https://freesound.org/s/369710/) by Mr. Guff, used under License: Creative Commons 0
 
 ***
 

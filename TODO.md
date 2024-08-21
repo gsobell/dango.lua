@@ -1,12 +1,16 @@
-## General
-- Data structure to hold moves and allow undo
+## Next
+- Finish undo
 - Ko, based on data structure
+- GTP games
+- Use metatable for stones
+- sgf handling
+
+## General
 - Touchscreen support
 - Add window, android to make
 - Command line options and help
 - love 2D and gnugo etc installation helper
 - Add typing by means of metatables
-- Sound for illegal move
 
 ## GTP
 - GTP implementation
@@ -15,13 +19,13 @@
 ## UI
 - Hint to show last played
 - Add simple menu
-- Add side legends (1-1 and A-1)
+- Add side A-1 legends
 - Game manager for ongoing games
 - Smooth hint transition
 
 ## SGF
-- Save games as SGF, use serialize
-- View SGF comments ()
+- Save games as SGF
+- View SGF comments
 
 ## Themes
 - Themes

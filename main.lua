@@ -1,7 +1,27 @@
+--[[
+dango.lua -- a cross platform, lightweight Go board
+Copyright (C) 2024 gsobell
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.]]
+
 require("board")
 require("logic")
 require("assets")
+require("record")
 -- require("gtp")
+-- require("sgf")
+-- require("themes")
 
 local initial_resize = true
 
@@ -31,14 +51,17 @@ end
 
 function load_globals()
   BOARD_SCALE = 0.9
-  GRID_SCALE = 1
+  GRID_SCALE = 0.8
+  STONE_SCALE = 1
   DEFAULT_SIZE = 9
+  COORDINATES = true
   SIZE = DEFAULT_SIZE
   BLACK, WHITE = -1, 1
   TO_PLAY = BLACK
   CURRENT = { x = math.ceil(SIZE / 2), y = math.ceil(SIZE / 2) }
   WIDTH, HEIGHT = love.graphics.getDimensions()
   STONES = generate_stones()
+  GAME_RECORD = record.new()
 end
 
 function generate_stones()
@@ -56,9 +79,16 @@ function draw_stones()
   for _, row in pairs(STONES) do
     for _, stone in pairs(row) do
       if stone then
-        love.graphics.setColor(0, 0, 0)
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(stone.img, stone.x - 1, stone.y - 1, 1 / STONE_WIDTH, 1 / STONE_HEIGHT)
+        love.graphics.draw(
+          stone.img,
+          stone.x - 0.5,
+          stone.y - 0.5,
+          0,
+          1 / STONE_WIDTH * STONE_SCALE,
+          1 / STONE_HEIGHT * STONE_SCALE,
+          STONE_WIDTH / 2,
+          STONE_HEIGHT / 2
+        )
       end
     end
   end
@@ -67,6 +97,7 @@ end
 function love.resize(w, h) --not in lutro
   if not initial_resize then
     WIDTH, HEIGHT = w, h
+    -- TODO do check here if to show hoshi, cuttoff dpi tdb
     draw_tatami()
     draw_board()
   end
@@ -100,8 +131,29 @@ function love.keypressed(key)
   end
   if key == "n" then
     STONES = generate_stones()
-    KO = { x = nil, y = nil }
+    GAME_RECORD = record.new()
     love.audio.play(NEW_GAME_SOUND)
+  end
+  if key == "u" then
+    local last_turn = GAME_RECORD:undo()
+    if not last_turn then
+      return
+    end
+    local color, x, y, to_replace = last_turn.color, last_turn.x, last_turn.y, last_turn.captured_stones
+        STONES[x][y] = nil
+        -- TODO add stone retrieval with undo
+    --     for _, group in pairs(to_replace) do
+    --       if group then
+    --         for _, stone in pairs(group) do
+    --           local i, j = stone.x, stone.y
+    --           if -color == BLACK then
+    --             STONES[i][j] = { color = BLACK, img = BLACK_STONE, x = i, y = j }
+    --           else
+    --             STONES[i][j] = { color = WHITE, img = WHITE_STONE, x = i, y = j }
+    --           end
+    --         end
+    --       end
+    --     end
   end
   if key == "p" then
     TO_PLAY = -TO_PLAY
@@ -165,11 +217,16 @@ function place_stone()
 
   do
     -- capture checks
+    to_remove = {}
     for _, direction in ipairs(directions) do
       local x, y = direction.x, direction.y
       if on_board(x, y) and STONES[x][y] ~= nil and STONES[x][y].color ~= TO_PLAY then
-        unplace_stones(capture(STONES[x][y], -TO_PLAY, CURRENT))
+        table.insert(to_remove, capture(STONES[x][y], -TO_PLAY, CURRENT))
       end
+    end
+
+    for _, group in pairs(to_remove) do
+      unplace_stones(group)
     end
 
     -- liberty check
@@ -197,22 +254,25 @@ function place_stone()
   end
 
   ::placement::
+
   if TO_PLAY == BLACK then
     STONES[CURRENT.x][CURRENT.y] = { color = BLACK, img = BLACK_STONE, x = CURRENT.x, y = CURRENT.y }
   else
     STONES[CURRENT.x][CURRENT.y] = { color = WHITE, img = WHITE_STONE, x = CURRENT.x, y = CURRENT.y }
   end
-  --   update_ko()
+
+  GAME_RECORD:add_turn(TO_PLAY, CURRENT.x, CURRENT.y, to_remove)
+
   local randomIndex = math.random(1, #STONE_PLACEMENT_SOUND)
   love.audio.play(STONE_PLACEMENT_SOUND[randomIndex])
   TO_PLAY = -TO_PLAY
 end
 
-function unplace_stones(to_remove)
-  if not to_remove then
+function unplace_stones(group)
+  if not group then
     return false
   end
-  for _, stone in pairs(to_remove) do
+  for _, stone in pairs(group) do
     local x = stone.x
     local y = stone.y
     STONES[x][y] = nil
@@ -221,6 +281,7 @@ function unplace_stones(to_remove)
   love.audio.play(STONE_CAPTURE_SOUND[randomIndex])
   return true
 end
+
 
 function mouse_board_hint() -- not on lutro!
   local cursor_x, cursor_y = love.mouse.getPosition()

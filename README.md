@@ -40,6 +40,7 @@ Navigate with arrow keys or mouse. Click, `enter` or `space` places a stone.
 
 Keyboard shortcuts:
 - `n` : new game
+- `u` : undo (in progress)
 - `p` : pass
 - `esc` : exit
 
@@ -49,6 +50,7 @@ Keyboard shortcuts:
 - Board of any size
 - Stone and group capture
 - Legal move detection
+- Custom independent scaling for board, grid and stone
 
 ### Future
 - Ko
