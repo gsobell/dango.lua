@@ -14,8 +14,8 @@ function draw_board()
   love.graphics.rectangle("line", x, y, square_edge, square_edge, 4, 4)
 
   square_edge = square_edge * GRID_SCALE
-  square = square_edge / SIZE
-  local offset = square * 0.5
+  SQUARE = square_edge / SIZE
+  local offset = SQUARE * 0.5
   x = (WIDTH - square_edge) / 2
   y = (HEIGHT - square_edge) / 2
   TOP_LEFT_BOARD = { x = x, y = y }
@@ -70,11 +70,11 @@ function draw_board()
   end
   for _, i in ipairs(hoshi) do
     for _, j in ipairs(hoshi) do
-      love.graphics.circle("fill", square * i + 1, square * j + 1, 7)
+      love.graphics.circle("fill", SQUARE * i + 1, SQUARE * j + 1, 7)
     end -- +1 is to center on line width
   end
   if SIZE % 2 == 1 then
-    love.graphics.circle("fill", square * center + 1, square * center + 1, 7)
+    love.graphics.circle("fill", SQUARE * center + 1, SQUARE * center + 1, 7)
   end
   love.graphics.setCanvas()
 end

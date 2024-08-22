@@ -42,7 +42,7 @@ function love.draw()
   draw_bg()
   love.graphics.push()
   love.graphics.translate(TOP_LEFT_BOARD.x, TOP_LEFT_BOARD.y) -- 0,0 of board
-  love.graphics.scale(square)
+  love.graphics.scale(SQUARE)
   draw_stones()
   mouse_board_hint()
   draw_hint()
@@ -68,9 +68,9 @@ function generate_stones()
   STONES = {}
   for i = 1, SIZE do
     STONES[i] = {}
-    for j = 1, SIZE do
-      STONES[i][j] = nil
-    end
+    --     for j = 1, SIZE do
+    --       STONES[i][j] = nil
+    --     end
   end
   return STONES
 end
@@ -140,8 +140,8 @@ function love.keypressed(key)
       return
     end
     local color, x, y, to_replace = last_turn.color, last_turn.x, last_turn.y, last_turn.captured_stones
-        STONES[x][y] = nil
-        -- TODO add stone retrieval with undo
+    STONES[x][y] = nil
+    -- TODO add stone retrieval with undo
     --     for _, group in pairs(to_replace) do
     --       if group then
     --         for _, stone in pairs(group) do
@@ -154,6 +154,7 @@ function love.keypressed(key)
     --         end
     --       end
     --     end
+    TO_PLAY = -TO_PLAY
   end
   if key == "p" then
     TO_PLAY = -TO_PLAY
@@ -167,8 +168,8 @@ end
 function love.mousepressed(_, _, button)
   if button == 1 then
     local cursor_x, cursor_y = love.mouse.getPosition()
-    local x = math.ceil((cursor_x - TOP_LEFT_BOARD.x) / square)
-    local y = math.ceil((cursor_y - TOP_LEFT_BOARD.y) / square)
+    local x = math.ceil((cursor_x - TOP_LEFT_BOARD.x) / SQUARE)
+    local y = math.ceil((cursor_y - TOP_LEFT_BOARD.y) / SQUARE)
     if on_board(x, y) then
       place_stone()
     end
@@ -215,7 +216,7 @@ function place_stone()
   end
   local directions = adjacent(CURRENT.x, CURRENT.y)
 
-  do
+  do -- TODO refactor this:
     -- capture checks
     to_remove = {}
     for _, direction in ipairs(directions) do
@@ -282,11 +283,10 @@ function unplace_stones(group)
   return true
 end
 
-
 function mouse_board_hint() -- not on lutro!
   local cursor_x, cursor_y = love.mouse.getPosition()
-  local x = math.ceil((cursor_x - TOP_LEFT_BOARD.x) / square)
-  local y = math.ceil((cursor_y - TOP_LEFT_BOARD.y) / square)
+  local x = math.ceil((cursor_x - TOP_LEFT_BOARD.x) / SQUARE)
+  local y = math.ceil((cursor_y - TOP_LEFT_BOARD.y) / SQUARE)
   if on_board(x, y) then
     CURRENT.x = x
     CURRENT.y = y
