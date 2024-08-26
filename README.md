@@ -13,7 +13,7 @@ To make a no-frills Go client that supports [GTP](https://www.lysator.liu.se/~gu
 A lightweight, cross-platform alternative to [Sabaki](https://github.com/SabakiHQ/Sabaki), especially for embedded systems that don't have the resources for an Electron-based program.
 
 
-### Build
+## Build
 Still a work in progress, basic game is implemented:
 
 ```sh
@@ -23,22 +23,22 @@ love ./
 ```
 Requires: [`LÖVE 2D`](https://www.love2d.org/)
 
-### Installation
+## Installation
 
 Work in progress, for now see [build](#Build) above.
 
-Platform specific binaries to be available under [Releases](https://github.com/gsobell/dango.lua/releases) in the future.
-
 *Planned:*
+
+Platform specific binaries to be available under [Releases](https://github.com/gsobell/dango.lua/releases) in the future.
 
 There are three default profiles, automatically detected at runtime:
 1. Desktop - cross-platform, mouse and keyboard
 2. Touchscreen - Phones, tablets, and eInk Tablets
 3. Embedded - [RetroArch](https://www.retroarch.com/) or [Ludo](https://ludo.libretro.com/)
 
-Lutro compatibility mode,
+#### Lutro compatibility mode
 For the third category, care was taken only to use the [API](https://github.com/libretro/lutro-status) implemented by [Lutro](https://lutro.libretro.com/), a subset of [LÖVE 2D](https://www.love2d.org/).
-This will allow `dango` to run on any embedded device that can run Libretto's RetroArch.
+This will allow `dango` to run on any embedded device that supports Libretto's RetroArch. (i.e. handheld console, TV, smart toaster, etc.)
 
 
 ## Controls
@@ -77,25 +77,24 @@ See [TODO](TODO.md) for the project roadmap.
 
 While any and all GTP engines should work, some require no additional setup:
 
- Engine | Windows              | Linux                | Android              | Embedded
-:-:     |:-:                   |:-:                   |:-:                   |:-:
-`gnugo` | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square:
-`pachi` | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square:
-`michi` | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square:
-`lichi` | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square:
+ Engine  | Linux             | Windows          | Android         | macOS     | Embedded | Notes
+:-:       |:-:                   |:-:                   |:-:                   |:-: | :-:|:-:
+[`gnugo`](https://www.gnu.org/software/gnugo/gnugo.html) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
+[`pachi`](https://github.com/pasky/pachi) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
+[`michi`](https://github.com/pasky/michi) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | requires `python2`
+[`lichi`](https://github.com/gsobell/lichi) | :x: |:x: |:x: |:x: |:x: | in development
 
-:white_check_mark: = works
-
-:negative_squared_cross_mark: = works, setup needed
-
+:white_check_mark: = works out of the box,
+:ballot_box_with_check: = works, setup needed
+<!-- :negative_squared_cross_mark: = works, setup needed -->
 :white_large_square: = untested
 
-:bug: = buggy
-
+:bug: = buggy,
 :x: = not available on this platform
 
 <!-- N/A = not available on this platform -->
-<!-- ✅ ❎ ⬜ 🐛 ❌ -->
+<!-- ✅ ☑️ ❎ ⬜ 🐛 ❌ -->
+
 
 See also:
 

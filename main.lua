@@ -15,11 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.]]
 
+require("util")
 require("board")
 require("logic")
 require("assets")
 require("record")
--- require("gtp")
+require("gtp")
 -- require("sgf")
 -- require("themes")
 
@@ -29,7 +30,7 @@ function love.load()
   love.keyboard.setKeyRepeat(true, 5)
   love.window.setFullscreen(true) -- missing from Lutro
   load_globals()
-  --   love.window.setMode(50, 50, { resizable= true, minwidth=20, minheight=10} )
+  --     love.window.setMode(50, 50, { resizable= true, minwidth=20, minheight=10} )
   draw_tatami()
   draw_board()
   load_stones()
@@ -68,9 +69,6 @@ function generate_stones()
   STONES = {}
   for i = 1, SIZE do
     STONES[i] = {}
-    --     for j = 1, SIZE do
-    --       STONES[i][j] = nil
-    --     end
   end
   return STONES
 end
@@ -263,7 +261,7 @@ function place_stone()
   end
 
   GAME_RECORD:add_turn(TO_PLAY, CURRENT.x, CURRENT.y, to_remove)
-
+  --
   local randomIndex = math.random(1, #STONE_PLACEMENT_SOUND)
   love.audio.play(STONE_PLACEMENT_SOUND[randomIndex])
   TO_PLAY = -TO_PLAY

@@ -15,22 +15,40 @@
 - love 2D and gnugo etc installation helper
 - Add stone type by means of metatables
 
+## Release Checklist
+- Add screenshot(s) to readme
+- Confirm gnugo works
+- Refactor and format code
+- dango.lua --> something else?
+- Automated tests; sanity checks
+- Contribution guidelines for testing/features
+
 ## Record
 - Allow for branches
 
 ## GTP
 - GTP implementation
-- GnuGO
-- Table in readme with engine status and availability on platforms
+- Lua popen() only supports read or write, so make temp, and redirect gtp to temp
 
 ## SGF
 - Save games as SGF
 - View SGF comments
 
+## Profiles
+- Desktop
+- Touchscreen
+  - [ ] No hinting
+- eInk
+  - [ ] Inherits Touchscreen
+  - [ ] Lower refresh rate
+  - [ ] Default theme
+- Embedded
+  - [ ] Set non-compatible functions to `nil`
+  - [ ] No mouse
+
 ## Lutro
 - compatibility mode
 - lutro-helper.sh
-- set func to null if enabled
 
 ## UI
 - Hint to show last played
