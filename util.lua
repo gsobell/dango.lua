@@ -3,7 +3,7 @@
 -- A1 --> 1-1
 -- NOTE 'i' is skipped for traditional reasons
 function gtp_from_engine(string)
-  string = string:match("=%s*(%a%d+)")
+  --   string = string:match("=%s*(%a%d+)")
   if not string then
     return false
   end

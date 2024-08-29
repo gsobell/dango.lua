@@ -37,7 +37,17 @@ function love.load()
   load_sounds()
 end
 
-function love.update() end
+function love.update()
+  if IS_AI.black and TO_PLAY == BLACK then
+    place_stone()
+  end
+  if IS_AI.white and TO_PLAY == WHITE and DRAW_AFTER_PLACE then
+    success, move = coroutine.resume(GTP_CO, JUST_PLAYED)
+    print("THE MOVE IS:", move.x, move.y)
+    CURRENT.x, CURRENT.y = move.x, move.y
+    place_stone()
+  end
+end
 
 function love.draw()
   draw_bg()
@@ -48,6 +58,7 @@ function love.draw()
   mouse_board_hint()
   draw_hint()
   love.graphics.pop()
+  DRAW_AFTER_PLACE = true
 end
 
 function load_globals()
@@ -59,10 +70,18 @@ function load_globals()
   SIZE = DEFAULT_SIZE
   BLACK, WHITE = -1, 1
   TO_PLAY = BLACK
+  KOMI = 6.5
   CURRENT = { x = math.ceil(SIZE / 2), y = math.ceil(SIZE / 2) }
   WIDTH, HEIGHT = love.graphics.getDimensions()
   STONES = generate_stones()
   GAME_RECORD = record.new()
+  JUST_PLAYED = nil
+  IS_AI = { black = false, white = true }
+  GTP_CO = coroutine.create(gtp_repl)
+  local success, err = coroutine.resume(GTP_CO)
+  if not success then
+    print("Error starting coroutine: " .. err)
+  end
 end
 
 function generate_stones()
@@ -131,6 +150,11 @@ function love.keypressed(key)
     STONES = generate_stones()
     GAME_RECORD = record.new()
     love.audio.play(NEW_GAME_SOUND)
+    GTP_CO = coroutine.create(gtp_repl)
+    local success, err = coroutine.resume(GTP_CO)
+    if not success then
+      print("Error starting coroutine: " .. err)
+    end
   end
   if key == "u" then
     local last_turn = GAME_RECORD:undo()
@@ -216,6 +240,7 @@ function place_stone()
 
   do -- TODO refactor this:
     -- capture checks
+    -- add methods to STONES table
     to_remove = {}
     for _, direction in ipairs(directions) do
       local x, y = direction.x, direction.y
@@ -259,12 +284,13 @@ function place_stone()
   else
     STONES[CURRENT.x][CURRENT.y] = { color = WHITE, img = WHITE_STONE, x = CURRENT.x, y = CURRENT.y }
   end
-
+  JUST_PLAYED = STONES[CURRENT.x][CURRENT.y]
   GAME_RECORD:add_turn(TO_PLAY, CURRENT.x, CURRENT.y, to_remove)
   --
   local randomIndex = math.random(1, #STONE_PLACEMENT_SOUND)
   love.audio.play(STONE_PLACEMENT_SOUND[randomIndex])
   TO_PLAY = -TO_PLAY
+  DRAW_AFTER_PLACE = false
 end
 
 function unplace_stones(group)

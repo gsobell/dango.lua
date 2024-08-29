@@ -57,15 +57,15 @@ Keyboard shortcuts:
 - Stone and group capture
 - Legal move detection
 - Adjustable scaling for board, grid and stones
+- GTP protocol
 
 ### In Progress
 - Ko
 - Undo
-- GTP protocol
+- Zero configuration GTP engines
 
 ### Future
 - SGF Import/export
-- Zero configuration GTP engines
 - Profile auto-detection
 - Themes
   - eInk theme
@@ -79,16 +79,15 @@ While any and all GTP engines should work, some require no additional setup:
 
  Engine  | Linux             | Windows          | Android         | macOS     | Embedded | Notes
 :-:       |:-:                   |:-:                   |:-:                   |:-: | :-:|:-:
-[`gnugo`](https://www.gnu.org/software/gnugo/gnugo.html) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
+[`gnugo`](https://www.gnu.org/software/gnugo/gnugo.html) | :white_check_mark: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
 [`pachi`](https://github.com/pasky/pachi) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
 [`michi`](https://github.com/pasky/michi) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | requires `python2`
 [`lichi`](https://github.com/gsobell/lichi) | :x: |:x: |:x: |:x: |:x: | in development
 
 :white_check_mark: = works out of the box,
 :ballot_box_with_check: = works, setup needed
-<!-- :negative_squared_cross_mark: = works, setup needed -->
 :white_large_square: = untested
-
+<!-- :negative_squared_cross_mark: = works, setup needed -->
 :bug: = buggy,
 :x: = not available on this platform
 

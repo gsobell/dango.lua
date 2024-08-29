@@ -1,5 +1,5 @@
 function is_spot_filled()
-  return STONES[CURRENT.x][CURRENT.y]
+  return STONES[CURRENT.x][CURRENT.y] --TODO  fix attempt to index a nil value
 end
 
 function capture(start, color, placed)
