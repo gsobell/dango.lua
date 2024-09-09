@@ -43,7 +43,7 @@ function love.update()
   end
   if IS_AI.white and TO_PLAY == WHITE and DRAW_AFTER_PLACE then
     success, move = coroutine.resume(GTP_CO, JUST_PLAYED)
-    print("THE MOVE IS:", move.x, move.y)
+    print("The move is:", move.x, move.y)
     CURRENT.x, CURRENT.y = move.x, move.y
     place_stone()
   end

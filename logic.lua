@@ -1,5 +1,6 @@
 function is_spot_filled()
-  return STONES[CURRENT.x][CURRENT.y] --TODO  fix attempt to index a nil value
+  print("is filed", CURRENT.x, CURRENT.y)
+  return STONES[CURRENT.x][CURRENT.y] --TODO  fix attempt to index a nil value (seems to be from gtp move not reading in time)
 end
 
 function capture(start, color, placed)

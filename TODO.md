@@ -5,7 +5,7 @@
 - Command line args to override defaults, see lua 'regex'
 - GTP games
 - Use metatable for stones
-- sgf handling
+- SGF handling
 
 ## General
 - Touchscreen support
@@ -17,7 +17,6 @@
 
 ## Release Checklist
 - Add screenshot(s) to readme
-- Confirm gnugo works
 - Refactor and format code
 - dango.lua --> something else?
 - Automated tests; sanity checks
@@ -25,10 +24,6 @@
 
 ## Record
 - Allow for branches
-
-## GTP
-- GTP implementation
-- Lua popen() only supports read or write, so make temp, and redirect gtp to temp
 
 ## SGF
 - Save games as SGF

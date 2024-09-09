@@ -1,4 +1,5 @@
 ENGINE = { name = "gnugo", bin = "/usr/bin/gnugo --mode gtp" }
+-- ENGINE = { name = "pachi", bin = "/usr/bin/pachi" }
 
 --[[ for testing gtp:
 local KOMI = 6.5
@@ -35,6 +36,7 @@ end
 
 function read_response(temp_file) end
 
+-- TODO add check for pass
 function gtp_repl()
   local temp_file = os.tmpname()
   local prev_move
@@ -46,17 +48,19 @@ function gtp_repl()
   print("Setup complete.")
   move = coroutine.yield()
   while true do
-    print(move.x, move.y, gtp_to_engine(move.x, move.y))
+    --     print(move.x, move.y, gtp_to_engine(move.x, move.y))
     gtp_play(engine, "black", gtp_to_engine(move.x, move.y))
     gtp_genmove(engine, "white")
-    os.execute("sleep 1")
     repeat
-      genmove = (io.open(temp_file, "r"):read("*a")) -- prints whole file
-      genmove = string.sub(genmove, -6)
-      genmove = genmove:gsub("[= %s\r\n]", "")
-    until genmove ~= prev_move
+      repeat
+        genmove = (io.open(temp_file, "r"):read("*a")) -- prints whole file
+        genmove = string.sub(genmove, -6)
+        genmove = genmove:gsub("[\n= %s\r\n]", "")
+      until genmove ~= prev_move
+      os.execute("sleep 1")
+      local x, y = gtp_from_engine(genmove)
+    until x ~= false
     prev_move = genmove
-    --     print("genmove is", genmove, gtp_from_engine(genmove))
     local x, y = gtp_from_engine(genmove)
     move = coroutine.yield({ x = x, y = y })
   end
