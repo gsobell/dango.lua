@@ -21,7 +21,6 @@ require("logic")
 require("assets")
 require("record")
 require("gtp")
--- require("sgf")
 -- require("themes")
 
 local initial_resize = true
@@ -35,6 +34,7 @@ function love.load()
   draw_board()
   load_stones()
   load_sounds()
+  require("sgf") -- needs STONES
 end
 
 function love.update()

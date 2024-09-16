@@ -62,11 +62,11 @@ Keyboard shortcuts:
 ### In Progress
 - Ko
 - Undo
+- SGF Import/export
 - Zero configuration GTP engines
 
 ### Future
 - Menu
-- SGF Import/export
 - Profile auto-detection
 - Game tree
 - Themes
@@ -87,11 +87,14 @@ While any and all GTP engines should work, some require additional setup:
 [`lichi`](https://github.com/gsobell/lichi) | :x: |:x: |:x: |:x: |:x: | in development
 [`ray`](https://github.com/kobanium/Ray) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
  [`katago`](https://github.com/lightvector/KataGo)| :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | `eigen` cpu, `openCL` on AMD GPU tested
- [leela zero](https://github.com/leela-zero/leela-zero) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
+ [`leela zero`](https://github.com/leela-zero/leela-zero) | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: | :white_large_square: |
 
- :white_check_mark: = just works   :ballot_box_with_check: = works, setup needed   :white_large_square: = untested
+ :white_check_mark: = just works
+<!--  :ballot_box_with_check: = works, setup needed    -->
+ :white_large_square: = untested
 <!-- :negative_squared_cross_mark: = works, setup needed -->
-:bug: = buggy   :x: = not available on this platform
+<!-- :bug: = buggy    -->
+:x: = not available on this platform
 
 <!-- N/A = not available on this platform -->
 <!-- ✅ ☑️ ❎ ⬜ 🐛 ❌ -->
