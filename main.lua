@@ -21,6 +21,7 @@ require("logic")
 require("assets")
 require("record")
 require("gtp")
+require("stones")
 -- require("themes")
 
 local initial_resize = true
@@ -84,33 +85,6 @@ function load_globals()
   end
 end
 
-function generate_stones()
-  STONES = {}
-  for i = 1, SIZE do
-    STONES[i] = {}
-  end
-  return STONES
-end
-
-function draw_stones()
-  for _, row in pairs(STONES) do
-    for _, stone in pairs(row) do
-      if stone then
-        love.graphics.draw(
-          stone.img,
-          stone.x - 0.5,
-          stone.y - 0.5,
-          0,
-          1 / STONE_WIDTH * STONE_SCALE,
-          1 / STONE_HEIGHT * STONE_SCALE,
-          STONE_WIDTH / 2,
-          STONE_HEIGHT / 2
-        )
-      end
-    end
-  end
-end
-
 function love.resize(w, h) --not in lutro
   if not initial_resize then
     WIDTH, HEIGHT = w, h
@@ -163,19 +137,6 @@ function love.keypressed(key)
     end
     local color, x, y, to_replace = last_turn.color, last_turn.x, last_turn.y, last_turn.captured_stones
     STONES[x][y] = nil
-    -- TODO add stone retrieval with undo
-    --     for _, group in pairs(to_replace) do
-    --       if group then
-    --         for _, stone in pairs(group) do
-    --           local i, j = stone.x, stone.y
-    --           if -color == BLACK then
-    --             STONES[i][j] = { color = BLACK, img = BLACK_STONE, x = i, y = j }
-    --           else
-    --             STONES[i][j] = { color = WHITE, img = WHITE_STONE, x = i, y = j }
-    --           end
-    --         end
-    --       end
-    --     end
     TO_PLAY = -TO_PLAY
   end
   if key == "p" then
@@ -279,11 +240,8 @@ function place_stone()
 
   ::placement::
 
-  if TO_PLAY == BLACK then
-    STONES[CURRENT.x][CURRENT.y] = { color = BLACK, img = BLACK_STONE, x = CURRENT.x, y = CURRENT.y }
-  else
-    STONES[CURRENT.x][CURRENT.y] = { color = WHITE, img = WHITE_STONE, x = CURRENT.x, y = CURRENT.y }
-  end
+  STONES:add(TO_PLAY, CURRENT.x, CURRENT.y)
+
   JUST_PLAYED = STONES[CURRENT.x][CURRENT.y]
   GAME_RECORD:add_turn(TO_PLAY, CURRENT.x, CURRENT.y, to_remove)
   --

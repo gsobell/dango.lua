@@ -7,12 +7,17 @@ local SIZE = 19
 local TO_PLAY = -1
 --]]
 
---[[
-end goal: have a function that encapusates all gtp functionality, with signature:
-
-generated_move = gtp_move(previous_move)
-
-]]
+function gtp_sync(engine)
+  send_command(engine, "clear_board")
+  for _, stone in ipairs(STONES) do
+    if stone.color == BLACK then
+      color = "black"
+    else
+      color = "white"
+    end
+    gtp_play(engine, color, gtp_to_engine(stone.x, stone.y))
+  end
+end
 
 function send_command(engine, command)
   print("sending command", command)
@@ -33,8 +38,6 @@ end
 function gtp_undo(engine)
   return send_command(engine, "undo") ~= false
 end
-
-function read_response(temp_file) end
 
 -- TODO add check for pass
 function gtp_repl()

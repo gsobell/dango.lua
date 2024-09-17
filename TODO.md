@@ -6,6 +6,7 @@
 - GTP games
 - Use metatable for stones
 - SGF handling
+- Hint on last played; visible on hover
 
 ## General
 - Touchscreen support
