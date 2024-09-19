@@ -1,38 +1,91 @@
-turn = {}
-turn.__index = turn
+function generate_record()
+  record_meta = {}
+  record_meta.__index = {
+    add = function(self)
+      self[#self + 1] = { x = CURRENT.x, y = CURRENT.y, state = stones_to_str(STONES) }
+    end,
 
-function turn.new(color, x, y, captured_stones)
-  local instance = {
-    color = color,
-    x = x,
-    y = y,
-    captured_stones = captured_stones,
+    undo = function(self)
+      if #self > 0 then
+        if #self == 1 then
+          STONES = generate_stones()
+          self = generate_record()
+          return
+        end
+        STONES = str_to_stones(self[#self - 1].state)
+        self[#self] = nil
+        TO_PLAY = -TO_PLAY
+--         print(stones_to_str(STONES))
+      end
+    end,
   }
-  setmetatable(instance, turn)
-  return instance
+  record = {}
+  setmetatable(record, record_meta)
+  return record
 end
 
-record = {}
-record.__index = record
-
--- TODO look at SGF spec for other metadata fields
-function record.new()
-  local instance = { turns = {} }
-  setmetatable(instance, record)
-  return instance
-end
-
-function record:add_turn(color, x, y, captured_stones)
-  local new_turn = turn.new(color, x, y, captured_stones)
-  table.insert(self.turns, new_turn)
-end
-
-function record:undo()
-  local last_turn = self.turns[#self.turns]
-  if last_turn then
-    table.remove(self.turns)
-    return last_turn
-  else
-    return nil
+-- STONES --> n**2 str
+function stones_to_str(stones)
+  if stones == nil then
+    return
   end
+  local string = ""
+  for i = 1, SIZE do
+    for j = 1, SIZE do
+      if stones[i][j] ~= nil then
+        if stones[i][j].color == BLACK then
+          string = string .. "B"
+        elseif stones[i][j].color == WHITE then
+          string = string .. "W"
+        end
+      else
+        string = string .. "."
+      end
+    end
+  end
+  return string
+end
+
+-- --> n**2 str --> STONES
+function str_to_stones(str)
+  if not str then
+    return generate_stones() -- root of game
+  end
+  local stones = {}
+  local index = 1
+  for i = 1, SIZE do
+    stones[i] = {}
+    for j = 1, SIZE do
+      local char = str:sub(index, index)
+      if char ~= "." then
+        if char == "W" then
+          stones[i][j] = { color = WHITE, x = i, y = j }
+        elseif char == "B" then
+          stones[i][j] = { color = BLACK, x = i, y = j }
+        end
+      end
+      index = index + 1
+    end
+  end
+  setmetatable(stones, stones_meta)
+  return stones
+end
+
+function str_pretty_print(str)
+    local transpose = {}
+    for i = 1, SIZE do
+        for j = 1, SIZE do
+            local k = (j - 1) * SIZE + i
+            if not transpose[i] then
+                transpose[i] = ""
+            end
+            transpose[i] = transpose[i] .. str:sub(k, k)
+        end
+    end
+
+    for i = 1, SIZE do
+        local pretty_row = transpose[i]:gsub(".", "%0 ")
+        print(pretty_row)
+    end
+    print("\n")
 end

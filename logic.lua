@@ -1,6 +1,12 @@
 function is_spot_filled()
-  print("is filed", CURRENT.x, CURRENT.y)
-  return STONES[CURRENT.x][CURRENT.y] --TODO  fix attempt to index a nil value (seems to be from gtp move not reading in time)
+  return STONES[CURRENT.x][CURRENT.y]
+end
+
+function is_ko()
+  if #RECORD > 3 then
+    result = RECORD[#RECORD].state == RECORD[#RECORD - 2].state
+  end
+  return false or result
 end
 
 function capture(start, color, placed)

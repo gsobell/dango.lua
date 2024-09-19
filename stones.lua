@@ -10,21 +10,22 @@ function generate_stones()
     add = function(self, color, x, y)
       self[x][y] = { color = color, x = x, y = y }
     end,
-
     get = function(self, color)
-      local stones = {}
-      for _, stone in ipairs(self) do
-        if stone.color == color then
-          table.insert(stones, stone)
+      local filtered = {}
+      for _, row in ipairs(self) do
+        for _, stone in ipairs(row) do
+          if stone.color == color then
+            table.insert(filtered, stone)
+          end
         end
       end
-      return stones
+      return filtered
     end,
   }
-  STONES = {}
-  setmetatable(STONES, stones_meta)
-  STONES:init()
-  return STONES
+  local stones = {}
+  setmetatable(stones, stones_meta)
+  stones:init()
+  return stones
 end
 
 function draw_stones()

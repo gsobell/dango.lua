@@ -58,17 +58,17 @@ Keyboard shortcuts:
 - Legal move detection
 - Adjustable scaling for board, grid and stones
 - GTP protocol
-
-### In Progress
 - Ko
 - Undo
+
+### In Progress
 - SGF Import/export
 - Zero configuration GTP engines
 
 ### Future
 - Menu
 - Profile auto-detection
-- Game tree
+- Branching game tree
 - Themes
   - eInk theme
   - Low-res theme

@@ -19,9 +19,9 @@ require("util")
 require("board")
 require("logic")
 require("assets")
-require("record")
 require("gtp")
 require("stones")
+require("record")
 -- require("themes")
 
 local initial_resize = true
@@ -30,7 +30,7 @@ function love.load()
   love.keyboard.setKeyRepeat(true, 5)
   love.window.setFullscreen(true) -- missing from Lutro
   load_globals()
-  --     love.window.setMode(50, 50, { resizable= true, minwidth=20, minheight=10} )
+  love.window.setMode(50, 50, { resizable = true, minwidth = 20, minheight = 10 })
   draw_tatami()
   draw_board()
   load_stones()
@@ -39,15 +39,20 @@ function love.load()
 end
 
 function love.update()
-  if IS_AI.black and TO_PLAY == BLACK then
-    place_stone()
+  if IS_AI.black and TO_PLAY == BLACK and DRAW_AFTER_PLACE then
+    gtp_turn(GTP_BLACK_CO)
   end
   if IS_AI.white and TO_PLAY == WHITE and DRAW_AFTER_PLACE then
-    success, move = coroutine.resume(GTP_CO, JUST_PLAYED)
-    print("The move is:", move.x, move.y)
-    CURRENT.x, CURRENT.y = move.x, move.y
-    place_stone()
+    gtp_turn(GTP_WHITE_CO)
   end
+  DRAW_AFTER_PLACE = false
+end
+
+function gtp_turn(gtp_coroutine)
+  success, move = coroutine.resume(gtp_coroutine, JUST_PLAYED)
+  print("The move is:", move.x, move.y)
+  CURRENT.x, CURRENT.y = move.x, move.y
+  place_stone()
 end
 
 function love.draw()
@@ -75,15 +80,26 @@ function load_globals()
   CURRENT = { x = math.ceil(SIZE / 2), y = math.ceil(SIZE / 2) }
   WIDTH, HEIGHT = love.graphics.getDimensions()
   STONES = generate_stones()
-  GAME_RECORD = record.new()
+  RECORD = generate_record()
   JUST_PLAYED = nil
-  IS_AI = { black = false, white = true }
-  GTP_CO = coroutine.create(gtp_repl)
-  local success, err = coroutine.resume(GTP_CO)
-  if not success then
-    print("Error starting coroutine: " .. err)
+  IS_AI = { black = false, white = false }
+  if IS_AI.black then
+    GTP_BLACK_CO = coroutine.create(gtp_repl)
+    local success, err = coroutine.resume(GTP_BLACK_CO, BLACK)
+    if not success then
+      print("Error starting coroutine: " .. err)
+    end
+  end
+
+  if IS_AI.white then
+    GTP_WHITE_CO = coroutine.create(gtp_repl)
+    local success, err = coroutine.resume(GTP_WHITE_CO, WHITE)
+    if not success then
+      print("Error starting coroutine: " .. err)
+    end
   end
 end
+AI_SETUP = true
 
 function love.resize(w, h) --not in lutro
   if not initial_resize then
@@ -122,22 +138,12 @@ function love.keypressed(key)
   end
   if key == "n" then
     STONES = generate_stones()
-    GAME_RECORD = record.new()
+    RECORD = generate_record()
     love.audio.play(NEW_GAME_SOUND)
-    GTP_CO = coroutine.create(gtp_repl)
-    local success, err = coroutine.resume(GTP_CO)
-    if not success then
-      print("Error starting coroutine: " .. err)
-    end
+    -- add GTP reset here
   end
   if key == "u" then
-    local last_turn = GAME_RECORD:undo()
-    if not last_turn then
-      return
-    end
-    local color, x, y, to_replace = last_turn.color, last_turn.x, last_turn.y, last_turn.captured_stones
-    STONES[x][y] = nil
-    TO_PLAY = -TO_PLAY
+    RECORD:undo()
   end
   if key == "p" then
     TO_PLAY = -TO_PLAY
@@ -197,58 +203,63 @@ function place_stone()
     love.audio.play(ILLEGAL_PLACEMENT_SOUND)
     return
   end
+
   local directions = adjacent(CURRENT.x, CURRENT.y)
-
-  do -- TODO refactor this:
-    -- capture checks
-    -- add methods to STONES table
-    to_remove = {}
-    for _, direction in ipairs(directions) do
-      local x, y = direction.x, direction.y
-      if on_board(x, y) and STONES[x][y] ~= nil and STONES[x][y].color ~= TO_PLAY then
-        table.insert(to_remove, capture(STONES[x][y], -TO_PLAY, CURRENT))
-      end
+  to_remove = {}
+  for _, direction in ipairs(directions) do
+    local x, y = direction.x, direction.y
+    if on_board(x, y) and STONES[x][y] ~= nil and STONES[x][y].color ~= TO_PLAY then
+      table.insert(to_remove, capture(STONES[x][y], -TO_PLAY, CURRENT))
     end
+  end
 
-    for _, group in pairs(to_remove) do
-      unplace_stones(group)
-    end
+  for _, group in pairs(to_remove) do
+    unplace_stones(group)
+  end
 
-    -- liberty check
-    for _, direction in ipairs(directions) do
-      local x, y = direction.x, direction.y
-      if on_board(x, y) and STONES[x][y] == nil then
-        goto placement
-      end
+  -- liberty check
+  for _, direction in ipairs(directions) do
+    local x, y = direction.x, direction.y
+    if on_board(x, y) and STONES[x][y] == nil then
+      placement()
+      return
     end
+  end
 
-    -- self-atari check
-    for _, direction in ipairs(directions) do
-      local x, y = direction.x, direction.y
-      if
-        on_board(x, y)
-        and STONES[x][y] ~= nil
-        and STONES[x][y].color == TO_PLAY
-        and not capture(STONES[x][y], TO_PLAY, CURRENT)
-      then
-        goto placement
-      end
+  -- self-atari check
+  for _, direction in ipairs(directions) do
+    local x, y = direction.x, direction.y
+    if
+      on_board(x, y)
+      and STONES[x][y] ~= nil
+      and STONES[x][y].color == TO_PLAY
+      and not capture(STONES[x][y], TO_PLAY, CURRENT)
+    then
+      placement()
+      return
     end
+  end
+  love.audio.play(ILLEGAL_PLACEMENT_SOUND)
+end
+
+function placement()
+  STONES:add(TO_PLAY, CURRENT.x, CURRENT.y)
+  RECORD:add()
+
+  --   print(stones_to_str(STONES))
+  str_pretty_print(stones_to_str(STONES))
+
+  JUST_PLAYED = STONES[CURRENT.x][CURRENT.y] -- used by GTP engine, replace
+  --
+  local random_index = math.random(1, #STONE_PLACEMENT_SOUND)
+  TO_PLAY = -TO_PLAY
+  DRAW_AFTER_PLACE = false
+  if is_ko() then
+    RECORD:undo()
     love.audio.play(ILLEGAL_PLACEMENT_SOUND)
     return
   end
-
-  ::placement::
-
-  STONES:add(TO_PLAY, CURRENT.x, CURRENT.y)
-
-  JUST_PLAYED = STONES[CURRENT.x][CURRENT.y]
-  GAME_RECORD:add_turn(TO_PLAY, CURRENT.x, CURRENT.y, to_remove)
-  --
-  local randomIndex = math.random(1, #STONE_PLACEMENT_SOUND)
-  love.audio.play(STONE_PLACEMENT_SOUND[randomIndex])
-  TO_PLAY = -TO_PLAY
-  DRAW_AFTER_PLACE = false
+  love.audio.play(STONE_PLACEMENT_SOUND[random_index])
 end
 
 function unplace_stones(group)
@@ -260,8 +271,8 @@ function unplace_stones(group)
     local y = stone.y
     STONES[x][y] = nil
   end
-  local randomIndex = math.random(1, #STONE_CAPTURE_SOUND)
-  love.audio.play(STONE_CAPTURE_SOUND[randomIndex])
+  local random_index = math.random(1, #STONE_CAPTURE_SOUND)
+  love.audio.play(STONE_CAPTURE_SOUND[random_index])
   return true
 end
 

@@ -40,7 +40,12 @@ function gtp_undo(engine)
 end
 
 -- TODO add check for pass
-function gtp_repl()
+function gtp_repl(player_color)
+  if player_color == WHITE then
+    player, opponent = "white", "black"
+  else
+    player, opponent = "black", "white"
+  end
   local temp_file = os.tmpname()
   local prev_move
   --   local response = file_monitor(temp_file)
@@ -51,11 +56,13 @@ function gtp_repl()
   print("Setup complete.")
   move = coroutine.yield()
   while true do
-    --     print(move.x, move.y, gtp_to_engine(move.x, move.y))
-    gtp_play(engine, "black", gtp_to_engine(move.x, move.y))
-    gtp_genmove(engine, "white")
+    if move then
+      gtp_play(engine, opponent, gtp_to_engine(move.x, move.y))
+    end
+    gtp_genmove(engine, player)
     repeat
       repeat
+        -- add clause to clear file when exceeds given size
         genmove = (io.open(temp_file, "r"):read("*a")) -- prints whole file
         genmove = string.sub(genmove, -6)
         genmove = genmove:gsub("[\n= %s\r\n]", "")

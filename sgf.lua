@@ -1,3 +1,5 @@
+-- SGF FF[4] format is used, branches to be introduced eventually
+
 -- "aa" --> {x=1, y=1}
 function sgf_to_coords(sgf)
   local x = string.byte(sgf:sub(1, 1)) - string.byte("a") + 1
@@ -5,7 +7,11 @@ function sgf_to_coords(sgf)
   return x, y
 end
 
--- TODO reattach engine if size change triggered
+-- {x=1, y=1} --> "aa"
+function sgf_from_coord(x, y)
+  return string.char(x + 96) .. string.char(y + 96)
+end
+
 function sgf_set_size(sgf_in)
   local size = sgf_in:match("SZ%[(%d+)%]")
   if size then
@@ -14,18 +20,24 @@ function sgf_set_size(sgf_in)
   end
 end
 
-function sgf_parse(sgf_in)
+function sgf_to_stone(sgf_in)
   for prop, coord in sgf_in:gmatch("([BW])%[(%a%a)%]") do
     local x, y = sgf_to_coords(coord)
     if prop == "B" then
-      STONES[x][y] = { color = BLACK, img = BLACK_STONE, x = x, y = y }
+      STONES[x][y] = { color = BLACK, x = x, y = y }
     elseif prop == "W" then
-      STONES[x][y] = { color = WHITE, img = WHITE_STONE, x = x, y = y }
+      STONES[x][y] = { color = WHITE, x = x, y = y }
     end
   end
 end
 
--- testing
--- sgf_input = "(;FF[4]GM[1]SZ[19]B[aa]W[ab]B[bc]W[dd])"
--- sgf_set_size(sgf_input)
--- sgf_parse_stones(sgf_input)
+function sgf_from_stone(stones)
+  local sgf = "(;FF[4]GM[1]SZ[" .. SIZE .. "]"
+  for _, stone in ipairs(stones) do
+    local player = stone.color
+    local coord = sgf_from_coord(stone.x, stone.y)
+    sgf = sgf .. ";" .. player .. "[" .. coord .. "]"
+  end
+  sgf = sgf .. ")"
+  return sgf
+end
