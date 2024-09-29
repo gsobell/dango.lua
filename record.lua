@@ -2,7 +2,12 @@ function generate_record()
   record_meta = {}
   record_meta.__index = {
     add = function(self)
-      self[#self + 1] = { x = CURRENT.x, y = CURRENT.y, state = stones_to_str(STONES) }
+      self[#self + 1] = { color = TO_PLAY, x = CURRENT.x, y = CURRENT.y, state = stones_to_str(STONES) }
+    end,
+    pass = function(self)
+      if #self > 0 then
+        self[#self + 1] = { scolor = TO_PLAY, state = self[#self].state }
+      end
     end,
 
     undo = function(self)
@@ -15,7 +20,7 @@ function generate_record()
         STONES = str_to_stones(self[#self - 1].state)
         self[#self] = nil
         TO_PLAY = -TO_PLAY
---         print(stones_to_str(STONES))
+        --         print(stones_to_str(STONES))
       end
     end,
   }
@@ -72,20 +77,21 @@ function str_to_stones(str)
 end
 
 function str_pretty_print(str)
-    local transpose = {}
-    for i = 1, SIZE do
-        for j = 1, SIZE do
-            local k = (j - 1) * SIZE + i
-            if not transpose[i] then
-                transpose[i] = ""
-            end
-            transpose[i] = transpose[i] .. str:sub(k, k)
-        end
+  print("  -- Turn " .. #RECORD .. " --")
+  local transpose = {}
+  for i = 1, SIZE do
+    for j = 1, SIZE do
+      local k = (j - 1) * SIZE + i
+      if not transpose[i] then
+        transpose[i] = ""
+      end
+      transpose[i] = transpose[i] .. str:sub(k, k)
     end
+  end
 
-    for i = 1, SIZE do
-        local pretty_row = transpose[i]:gsub(".", "%0 ")
-        print(pretty_row)
-    end
-    print("\n")
+  for i = 1, SIZE do
+    local pretty_row = transpose[i]:gsub(".", "%0 ")
+    print(pretty_row)
+  end
+  print("\n")
 end

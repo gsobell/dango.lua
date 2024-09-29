@@ -46,7 +46,7 @@ Navigate with arrow keys or mouse. Click, `enter` or `space` places a stone.
 
 Keyboard shortcuts:
 - `n` : new game
-- `u` : undo (in progress)
+- `u` : undo
 - `p` : pass
 - `esc` : exit
 

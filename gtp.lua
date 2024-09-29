@@ -7,6 +7,25 @@ local SIZE = 19
 local TO_PLAY = -1
 --]]
 
+function gtp_setup()
+  if IS_AI.black then
+    GTP_BLACK_CO = coroutine.create(gtp_repl)
+    local success, err = coroutine.resume(GTP_BLACK_CO, BLACK)
+    if not success then
+      print("Error starting coroutine: " .. err)
+    end
+  end
+
+  if IS_AI.white then
+    GTP_WHITE_CO = coroutine.create(gtp_repl)
+    local success, err = coroutine.resume(GTP_WHITE_CO, WHITE)
+    if not success then
+      print("Error starting coroutine: " .. err)
+    end
+  end
+  return GTP_BLACK_CO, GTP_WHITE_CO
+end
+
 function gtp_sync(engine)
   send_command(engine, "clear_board")
   for _, stone in ipairs(STONES) do
@@ -48,7 +67,6 @@ function gtp_repl(player_color)
   end
   local temp_file = os.tmpname()
   local prev_move
-  --   local response = file_monitor(temp_file)
   engine = io.popen(ENGINE.bin .. " > " .. temp_file, "w")
   send_command(engine, "boardsize " .. SIZE)
   send_command(engine, "komi " .. KOMI)
@@ -58,6 +76,8 @@ function gtp_repl(player_color)
   while true do
     if move then
       gtp_play(engine, opponent, gtp_to_engine(move.x, move.y))
+    else
+      gtp_play(engine, opponent, "pass")
     end
     gtp_genmove(engine, player)
     repeat

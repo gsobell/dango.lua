@@ -22,6 +22,7 @@ require("assets")
 require("gtp")
 require("stones")
 require("record")
+-- require("menu")
 -- require("themes")
 
 local initial_resize = true
@@ -30,7 +31,7 @@ function love.load()
   love.keyboard.setKeyRepeat(true, 5)
   love.window.setFullscreen(true) -- missing from Lutro
   load_globals()
-  love.window.setMode(50, 50, { resizable = true, minwidth = 20, minheight = 10 })
+  --   love.window.setMode(50, 50, { resizable = true, minwidth = 20, minheight = 10 })
   draw_tatami()
   draw_board()
   load_stones()
@@ -83,23 +84,8 @@ function load_globals()
   RECORD = generate_record()
   JUST_PLAYED = nil
   IS_AI = { black = false, white = false }
-  if IS_AI.black then
-    GTP_BLACK_CO = coroutine.create(gtp_repl)
-    local success, err = coroutine.resume(GTP_BLACK_CO, BLACK)
-    if not success then
-      print("Error starting coroutine: " .. err)
-    end
-  end
-
-  if IS_AI.white then
-    GTP_WHITE_CO = coroutine.create(gtp_repl)
-    local success, err = coroutine.resume(GTP_WHITE_CO, WHITE)
-    if not success then
-      print("Error starting coroutine: " .. err)
-    end
-  end
+  GTP_BLACK_CO, GTP_WHITE_CO = gtp_setup()
 end
-AI_SETUP = true
 
 function love.resize(w, h) --not in lutro
   if not initial_resize then
@@ -139,14 +125,17 @@ function love.keypressed(key)
   if key == "n" then
     STONES = generate_stones()
     RECORD = generate_record()
+    GTP_BLACK_CO, GTP_WHITE_CO = gtp_setup()
     love.audio.play(NEW_GAME_SOUND)
-    -- add GTP reset here
   end
   if key == "u" then
     RECORD:undo()
+    -- add GTP undo
   end
   if key == "p" then
     TO_PLAY = -TO_PLAY
+    RECORD:pass()
+    JUST_PLAYED = nil
     love.audio.play(PASS_SOUND)
   end
   if key == "return" or key == "space" then
@@ -213,8 +202,9 @@ function place_stone()
     end
   end
 
+  is_captured = false
   for _, group in pairs(to_remove) do
-    unplace_stones(group)
+    is_captured = unplace_stones(group) or is_captured
   end
 
   -- liberty check
@@ -246,7 +236,6 @@ function placement()
   STONES:add(TO_PLAY, CURRENT.x, CURRENT.y)
   RECORD:add()
 
-  --   print(stones_to_str(STONES))
   str_pretty_print(stones_to_str(STONES))
 
   JUST_PLAYED = STONES[CURRENT.x][CURRENT.y] -- used by GTP engine, replace
@@ -259,7 +248,12 @@ function placement()
     love.audio.play(ILLEGAL_PLACEMENT_SOUND)
     return
   end
-  love.audio.play(STONE_PLACEMENT_SOUND[random_index])
+  if is_captured then
+    local random_index = math.random(1, #STONE_CAPTURE_SOUND)
+    love.audio.play(STONE_CAPTURE_SOUND[random_index])
+  else
+    love.audio.play(STONE_PLACEMENT_SOUND[random_index])
+  end
 end
 
 function unplace_stones(group)
@@ -271,8 +265,6 @@ function unplace_stones(group)
     local y = stone.y
     STONES[x][y] = nil
   end
-  local random_index = math.random(1, #STONE_CAPTURE_SOUND)
-  love.audio.play(STONE_CAPTURE_SOUND[random_index])
   return true
 end
 
