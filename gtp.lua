@@ -26,6 +26,13 @@ function gtp_setup()
   return GTP_BLACK_CO, GTP_WHITE_CO
 end
 
+function gtp_turn(gtp_coroutine)
+  success, move = coroutine.resume(gtp_coroutine, JUST_PLAYED)
+  print("The move is:", move.x, move.y)
+  CURRENT.x, CURRENT.y = move.x, move.y
+  place_stone()
+end
+
 function gtp_sync(engine)
   send_command(engine, "clear_board")
   for _, stone in ipairs(STONES) do
@@ -58,6 +65,10 @@ function gtp_undo(engine)
   return send_command(engine, "undo") ~= false
 end
 
+function gtp_pass(engine)
+  return send_command(engine, "pass") ~= false
+end
+
 -- TODO add check for pass
 function gtp_repl(player_color)
   if player_color == WHITE then
@@ -74,8 +85,11 @@ function gtp_repl(player_color)
   print("Setup complete.")
   move = coroutine.yield()
   while true do
-    if move then
+    if move.x then
       gtp_play(engine, opponent, gtp_to_engine(move.x, move.y))
+    elseif move.undo then
+      gtp_play(engine, opponent, "undo")
+      JUST_PLAYED.undo = nil
     else
       gtp_play(engine, opponent, "pass")
     end
@@ -88,7 +102,7 @@ function gtp_repl(player_color)
         genmove = genmove:gsub("[\n= %s\r\n]", "")
       until genmove ~= prev_move
       os.execute("sleep 1")
-      local x, y = gtp_from_engine(genmove)
+      local x, _ = gtp_from_engine(genmove)
     until x ~= false
     prev_move = genmove
     local x, y = gtp_from_engine(genmove)

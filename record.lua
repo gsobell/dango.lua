@@ -11,17 +11,18 @@ function generate_record()
     end,
 
     undo = function(self)
-      if #self > 0 then
-        if #self == 1 then
-          STONES = generate_stones()
-          self = generate_record()
-          return
-        end
-        STONES = str_to_stones(self[#self - 1].state)
+      if #self == 0 then
+        return
+      elseif #self == 1 then
+        STONES = generate_stones()
+        JUST_PLAYED = { x = nil, y = nil }
         self[#self] = nil
-        TO_PLAY = -TO_PLAY
-        --         print(stones_to_str(STONES))
+        return
       end
+      STONES = str_to_stones(self[#self - 1].state)
+      JUST_PLAYED = self[#self - 1]
+      self[#self] = nil
+      TO_PLAY = -TO_PLAY
     end,
   }
   record = {}

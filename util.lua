@@ -1,9 +1,28 @@
--- command line parse and --help:
+function flags()
+  if arg and #arg > 0 then
+    for i, v in ipairs(arg) do
+      if v == "--help" or v == "-h" then
+        help()
+        love.event.quit()
+        return
+        --       if v == "--sgf" end
+        --       if v == "--size" end
+        --       if v == "--version" end
+      end
+    end
+  end
+end
+
+function help()
+  print("dango.lua - a cross platform, lightweight Go board")
+  print("  Usage: love ./ [options]")
+  print("  Options:")
+  print("  --help          Show this help message")
+end
 
 -- A1 --> 1-1
 -- NOTE 'i' is skipped for traditional reasons
 function gtp_from_engine(string)
-  --   string = string:match("=%s*(%a%d+)")
   if not string then
     return false
   end

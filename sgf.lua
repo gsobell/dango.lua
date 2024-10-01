@@ -26,7 +26,9 @@ function sgf_set_size(sgf_in)
 end
 
 function sgf_to_stone(sgf_in)
-  --   STONES = generate_stones()
+  if not STONES then
+    STONES = generate_stones()
+  end
   for prop, coord in sgf_in:gmatch("([BW])%[(%a%a)%]") do
     local x, y = sgf_to_coords(coord)
     if prop == SGF_BLACK then

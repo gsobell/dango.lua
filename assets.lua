@@ -31,3 +31,7 @@ function load_stones()
   WHITE_STONE = love.graphics.newImage("assets/white.png")
   STONE_WIDTH, STONE_HEIGHT = BLACK_STONE:getDimensions()
 end
+
+function load_board_textures()
+  return love.graphics.newImage("assets/wood_grain.png"), love.graphics.newImage("assets/tatami.png")
+end

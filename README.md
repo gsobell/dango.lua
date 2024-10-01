@@ -42,7 +42,7 @@ This will allow `dango` to run on any embedded device that supports Libretto's R
 
 
 ## Controls
-Navigate with arrow keys or mouse. Click, `enter` or `space` places a stone.
+Navigate with arrow keys, vim keys, or mouse. Click, `enter` or `space` places a stone.
 
 Keyboard shortcuts:
 - `n` : new game
